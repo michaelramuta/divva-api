@@ -3,4 +3,7 @@ Rails.application.routes.draw do
 
   resources :rides do
   end
+
+  resources :stations do
+  end
 end

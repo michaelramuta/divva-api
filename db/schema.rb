@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170812044037) do
+ActiveRecord::Schema.define(version: 20170812052050) do
 
   create_table "stations", force: :cascade do |t|
     t.float "lat"
@@ -18,6 +18,8 @@ ActiveRecord::Schema.define(version: 20170812044037) do
     t.integer "station_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name"
+    t.index ["station_id"], name: "index_stations_on_station_id", unique: true
   end
 
 end
