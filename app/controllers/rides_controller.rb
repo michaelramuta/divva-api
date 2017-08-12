@@ -4,21 +4,17 @@ require 'json'
 class RidesController < ApplicationController
 
 	def index
-		stations_1_ids = params[:station_1_ids]
-		stations_2_ids = params[:station_2_ids]
+		station_ids = params[:station_ids]
 
-		if stations_1_ids.nil? || stations_2_ids.nil?
+		if station_ids.nil?
 			json_response('why')
 		else
-			stations_1 = stations_1_ids.split(',')
-			stations_2 = stations_2_ids.split(',')
-
-			station_pairs = stations_1.zip(stations_2)
+			station_pairs = station_ids.split('|').map{|e| e.split(',') }
 
 			# first pass, make ride object or return distance
 			rides = station_pairs.map do |station_pair|
 				ride = Ride.where(station_1_id: station_pair[0], station_2_id: station_pair[1]).first_or_initialize
-				ride.distance.nil? ? ride : ride.distance
+				ride.distance.nil? ? ride : {distance: ride.distance, station_1_id: ride.station_1_id, station_2_id: ride.station_2_id}
 			end
 
 			uncalculated_rides = rides.select{ |ride| ride.is_a?(Ride) }.uniq{|ride| [ride[:station_1_id], ride[:station_2_id]]}
@@ -49,7 +45,7 @@ class RidesController < ApplicationController
 
 			# map out all rides
 			rides_distance = rides.map do |ride|
-				ride.is_a?(Ride) ? Ride.where(station_1_id: ride.station_1_id, station_2_id: ride.station_2_id).first_or_initialize.distance : ride
+				ride.is_a?(Ride) ? {distance: Ride.where(station_1_id: ride.station_1_id, station_2_id: ride.station_2_id).first_or_initialize.distance, station_1_id: ride.station_1_id, station_2_id: ride.station_2_id}  : ride
 			end
 
 			json_response(rides_distance)
