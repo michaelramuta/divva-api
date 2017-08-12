@@ -20,7 +20,7 @@ class StationsController < ApplicationController
 
 			json_response('good job, stations seeded')
 		else
-			json_response('what are you looking here for?')
+			json_response({result: 'what are you looking here for?'})
 		end
 
 	end
