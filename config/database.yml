@@ -83,3 +83,4 @@ production:
   database: divva-api
   username: divva-api
   password: <%= ENV['DIVVA_API_DATABASE_PASSWORD'] %>
+  url: <%= ENV['DATABASE_URL'] %>
