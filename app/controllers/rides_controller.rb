@@ -9,15 +9,15 @@ class RidesController < ApplicationController
 		if station_ids.nil?
 			json_response('why')
 		else
-			station_pairs = station_ids.split('|').map{|e| e.split(',') }
+			station_pairs = station_ids.split('|').uniq.map{|e| e.split(',') }
 
 			# first pass, make ride object or return distance
 			rides = station_pairs.map do |station_pair|
 				ride = Ride.where(station_1_id: station_pair[0], station_2_id: station_pair[1]).first_or_initialize
-				ride.distance.nil? ? ride : {distance: ride.distance, station_1_id: ride.station_1_id, station_2_id: ride.station_2_id}
+				ride.distance.nil? ? ride : Ride.format_distance(ride, ride.distance)
 			end
 
-			uncalculated_rides = rides.select{ |ride| ride.is_a?(Ride) }.uniq{|ride| [ride[:station_1_id], ride[:station_2_id]]}
+			uncalculated_rides = rides.select{ |ride| ride.is_a?(Ride) }
 			
 			# calculate all unknown rides
 			uncalculated_rides.each do |ride|
@@ -45,7 +45,11 @@ class RidesController < ApplicationController
 
 			# map out all rides
 			rides_distance = rides.map do |ride|
-				ride.is_a?(Ride) ? {distance: Ride.where(station_1_id: ride.station_1_id, station_2_id: ride.station_2_id).first_or_initialize.distance, station_1_id: ride.station_1_id, station_2_id: ride.station_2_id}  : ride
+				if ride.is_a?(Ride)
+					Ride.format_distance(ride)
+				else
+					ride
+				end
 			end
 
 			json_response(rides_distance)
