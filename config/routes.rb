@@ -6,4 +6,6 @@ Rails.application.routes.draw do
 
   resources :stations do
   end
+
+  root to: 'rides#main'
 end
